@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
+import { useRecordTodayQuery } from '../../features/record/recordsApiSlice';
+import { setRecord } from '../../features/record/recordSlice';
 
 const Record = () => {
   const [date, setDate] = useState(new Date());
   const [timeIn, setTimeIn] = useState<string | null>(null);
   const [timeOut, setTimeOut] = useState<string | null>(null);
+  const [records, setRecords] = useState(null);
+
+  const dispatch = useDispatch();
 
   const { userInfo } = useSelector((state: RootState) => state.auth);
+  const { recordInfo } = useSelector((state: RootState) => state.record);
+
+  const { data: recordData } = useRecordTodayQuery(userInfo._id);
 
   const localizedDate = date.toLocaleString('en-US', {
     year: 'numeric',
@@ -70,6 +78,15 @@ const Record = () => {
   };
 
   useEffect(() => {
+    dispatch(setRecord({ ...recordData }));
+  }, [userInfo, recordData]);
+
+  useEffect(() => {
+    console.log(recordInfo[0]);
+    setRecords(recordInfo[0]);
+  }, [recordInfo]);
+
+  useEffect(() => {
     const intervalId = setInterval(() => {
       setDate(new Date());
     }, 1000);
@@ -82,7 +99,7 @@ const Record = () => {
       <div className='card bg-base-100 w-full md:w-96 shadow-xl'>
         <div className='card-body'>
           <h2 className='card-title'>Hello {userInfo.name}</h2>
-          <p>Company name</p>
+          <p>Company name {records?.date}</p>
           <div className='stats shadow w-full border border-[#c2c9d3] rounded-md bg-base-200 mt-4'>
             <div className='stat'>
               <div className='stat-title'>{localizedDate}</div>
