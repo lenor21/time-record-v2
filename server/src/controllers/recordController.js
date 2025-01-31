@@ -56,18 +56,13 @@ const addTimeOut = asyncHandler(async (req, res) => {
     throw new Error('Record not found');
   }
 
-  // check if the date.now already exists
-  const currentDay = new Date().toISOString().split('T')[0];
-  const dateExists = await Record.findOne({
-    date: {
-      $gte: new Date(currentDay),
-      $lt: new Date(currentDay + 'T23:59:59.999Z'),
-    },
-  });
+  const { timeOut } = req.body;
 
-  if (dateExists) {
+  const timeOutExist = await Record.findOne({ timeOut });
+
+  if (timeOutExist) {
     res.status(400);
-    throw new Error('Record already exists');
+    throw new Error('Time out already exists');
   }
 
   const updatedRecord = await Record.findByIdAndUpdate(
@@ -81,4 +76,25 @@ const addTimeOut = asyncHandler(async (req, res) => {
   res.status(200).json(updatedRecord);
 });
 
-export { getRecords, addTimeIn, addTimeOut };
+// @desc: get the record for the day
+// @route: GET /api/records/today
+// @access: Private
+const getRecordToday = asyncHandler(async (req, res) => {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0); // Set time to the beginning of the day
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999); // Set time to the end of the day
+
+  const record = await Record.find({
+    date: {
+      $gte: startOfDay, // Greater than or equal to the start of the day
+      $lte: endOfDay, // Less than or equal to the end of the day
+    },
+    user: req.user._id, // only the record for this user
+  });
+
+  res.status(200).json(record);
+});
+
+export { getRecords, addTimeIn, addTimeOut, getRecordToday };

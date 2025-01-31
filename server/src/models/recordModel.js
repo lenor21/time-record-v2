@@ -12,9 +12,11 @@ const recordSchema = mongoose.Schema({
   },
   timeIn: {
     type: Date,
+    default: null,
   },
   timeOut: {
     type: Date,
+    default: null,
   },
   duration: {
     type: Number,

@@ -3,6 +3,7 @@ import { clearCredentials } from '../features/auth/authSlice';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
+import { clearRecord } from '../features/record/recordSlice';
 
 const LogoutButton = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const LogoutButton = () => {
 
           await logoutApiCall().unwrap();
           dispatch(clearCredentials());
+          dispatch(clearRecord());
           navigate('/');
         }
       });

@@ -81,7 +81,7 @@ const Header = () => {
             {userInfo ? (
               <li>
                 <details>
-                  <summary>{userInfo.name.trim().split(/\s+/)[0]}</summary>
+                  <summary>{userInfo?.name?.trim().split(/\s+/)[0]}</summary>
                   <ul className='bg-base-100 rounded-t-none p-2 '>
                     <li>
                       <Link to='/account'>Record</Link>
