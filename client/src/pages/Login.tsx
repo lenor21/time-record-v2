@@ -10,8 +10,6 @@ import { setCredentials } from '../features/auth/authSlice';
 import { RootState } from '../app/store';
 import Swal from 'sweetalert2';
 import Loader from '../components/Loader';
-import { useRecordTodayQuery } from '../features/record/recordsApiSlice';
-import { setRecord } from '../features/record/recordSlice';
 
 interface FormValues {
   email: string;
@@ -27,9 +25,6 @@ const Login = () => {
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
   const [login, { isLoading }] = useLoginMutation();
-  const { data, refetch } = useRecordTodayQuery(userInfo?._id, {
-    skip: !userInfo,
-  });
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -47,8 +42,6 @@ const Login = () => {
 
       // handle successful login
       dispatch(setCredentials({ ...res }));
-
-      dispatch(setRecord({ ...data }));
 
       navigate('/account');
       actions.resetForm();
@@ -100,7 +93,6 @@ const Login = () => {
   useEffect(() => {
     if (userInfo) {
       navigate('/account');
-      refetch();
     }
   }, [navigate, userInfo]);
 
