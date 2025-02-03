@@ -9,7 +9,6 @@ const Record = () => {
   const [date, setDate] = useState(new Date());
   const [timeIn, setTimeIn] = useState<string | null>(null);
   const [timeOut, setTimeOut] = useState<string | null>(null);
-  const [records, setRecords] = useState(null);
 
   const dispatch = useDispatch();
 
@@ -78,13 +77,13 @@ const Record = () => {
   };
 
   useEffect(() => {
-    dispatch(setRecord({ ...recordData }));
-  }, [userInfo, recordData]);
-
-  useEffect(() => {
-    console.log(recordInfo[0]);
-    setRecords(recordInfo[0]);
-  }, [recordInfo]);
+    if (recordData && recordData.length > 0) {
+      console.log(recordData);
+      dispatch(setRecord({ ...recordData[0] }));
+    } else {
+      console.log('recordData is undefined or empty');
+    }
+  }, [recordData, dispatch, setRecord]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -99,7 +98,7 @@ const Record = () => {
       <div className='card bg-base-100 w-full md:w-96 shadow-xl'>
         <div className='card-body'>
           <h2 className='card-title'>Hello {userInfo.name}</h2>
-          <p>Company name {records?.date}</p>
+          <p>Company name {recordInfo?.name}</p>
           <div className='stats shadow w-full border border-[#c2c9d3] rounded-md bg-base-200 mt-4'>
             <div className='stat'>
               <div className='stat-title'>{localizedDate}</div>
