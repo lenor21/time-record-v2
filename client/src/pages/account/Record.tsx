@@ -2,20 +2,25 @@ import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../app/store';
-import { useRecordTodayQuery } from '../../features/record/recordsApiSlice';
+import {
+  useRecordTodayQuery,
+  useTimeInMutation,
+  useTimeOutMutation,
+} from '../../features/record/recordsApiSlice';
 import { setRecord } from '../../features/record/recordSlice';
+import Loader from '../../components/Loader';
 
 const Record = () => {
   const [date, setDate] = useState(new Date());
-  const [recordTimeIn, setRecordTimeIn] = useState<string | null>(null);
-  const [recordTimeOut, setRecordTimeOut] = useState<string | null>(null);
 
   const dispatch = useDispatch();
 
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const { recordInfo } = useSelector((state: RootState) => state.record);
 
-  const { data: recordData } = useRecordTodayQuery(userInfo._id);
+  const { data: recordData, isLoading } = useRecordTodayQuery(userInfo._id);
+  const [timeIn] = useTimeInMutation();
+  const [timeOut] = useTimeOutMutation();
 
   const localizedDate = date.toLocaleString('en-US', {
     year: 'numeric',
@@ -28,7 +33,7 @@ const Record = () => {
     minute: '2-digit',
   });
 
-  const handleTimeIn = () => {
+  const handleTimeIn = async () => {
     Swal.fire({
       title: 'Are you sure about this time in?',
       text: "You won't be able to revert this!",
@@ -37,17 +42,29 @@ const Record = () => {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: localizedTime,
-          text: 'Your time in has been saved.',
-          icon: 'success',
-        });
+        try {
+          const res = await timeIn({
+            timeIn: date,
+          }).unwrap();
 
-        localStorage.setItem('timeIn', localizedTime);
+          dispatch(setRecord({ ...res }));
 
-        setRecordTimeIn(localStorage.getItem('timeIn'));
+          Swal.fire({
+            title: localizedTime,
+            text: 'Your time in has been saved.',
+            icon: 'success',
+          });
+        } catch (err: any) {
+          Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: `${err.data.message}`,
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        }
       }
     });
   };
@@ -61,44 +78,33 @@ const Record = () => {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: localizedTime,
-          text: 'Your time in has been saved.',
-          icon: 'success',
-        });
+        try {
+          const res = await timeOut({
+            timeOut: date,
+            _id: recordInfo._id,
+          }).unwrap();
 
-        localStorage.setItem('timeOut', localizedTime);
+          dispatch(setRecord({ ...res }));
 
-        setRecordTimeOut(localStorage.getItem('timeOut'));
+          Swal.fire({
+            title: localizedTime,
+            text: 'Your time in has been saved.',
+            icon: 'success',
+          });
+        } catch (err: any) {
+          Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: `${err.data.message || err.message}`,
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        }
       }
     });
   };
-
-  // useEffect(() => {
-  //   if (recordInfo) {
-  //     localStorage.setItem(
-  //       'timeIn',
-  //       new Date(recordInfo.timeIn).toLocaleString('en-US', {
-  //         hour: '2-digit',
-  //         minute: '2-digit',
-  //       })
-  //     );
-
-  //     localStorage.setItem(
-  //       'timeOut',
-  //       new Date(recordInfo.timeOut).toLocaleString('en-US', {
-  //         hour: '2-digit',
-  //         minute: '2-digit',
-  //       })
-  //     );
-  //     setRecordTimeIn(localStorage.getItem('timeIn'));
-  //     setRecordTimeOut(localStorage.getItem('timeOut'));
-
-  //     console.log(recordTimeOut);
-  //   }
-  // }, [recordInfo]);
 
   useEffect(() => {
     if (recordData && recordData.length > 0) {
@@ -117,6 +123,10 @@ const Record = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
     <div className='grid place-items-center min-h-[80vh]'>
       <div className='card bg-base-100 w-full md:w-96 shadow-xl'>
@@ -134,17 +144,14 @@ const Record = () => {
               <div className='stat'>
                 <div className='stat-title text-center'>Time in:</div>
                 <div className='stat-value text-xl text-center'>
-                  {recordInfo.timeIn
-                    ? new Date(recordInfo.timeIn).toLocaleString('en-US', {
+                  {recordInfo?.timeIn
+                    ? new Date(recordInfo?.timeIn).toLocaleString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })
                     : 'No record'}
                 </div>
-                <button
-                  onClick={handleTimeIn}
-                  className='btn mt-6'
-                  disabled={recordTimeIn !== null || recordTimeOut !== null}>
+                <button onClick={handleTimeIn} className='btn mt-6'>
                   TIME IN
                 </button>
               </div>
@@ -153,12 +160,14 @@ const Record = () => {
               <div className='stat'>
                 <div className='stat-title text-center'>Time out:</div>
                 <div className='stat-value text-xl text-center'>
-                  {recordTimeOut ? recordTimeOut : 'No record'}
+                  {recordInfo?.timeOut
+                    ? new Date(recordInfo?.timeOut).toLocaleString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : 'No record'}
                 </div>
-                <button
-                  onClick={handleTimeOut}
-                  className='btn mt-6'
-                  disabled={recordTimeOut !== null}>
+                <button onClick={handleTimeOut} className='btn mt-6'>
                   TIME OUT
                 </button>
               </div>

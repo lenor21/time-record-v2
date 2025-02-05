@@ -10,14 +10,26 @@ export const recordsApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['Record'],
+    }),
+
+    timeOut: builder.mutation({
+      query: (data) => ({
+        url: `${RECORDS_URL}/${data._id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Record'],
     }),
     recordToday: builder.query({
       query: () => ({
         url: `${RECORDS_URL}/today`,
         method: 'GET',
       }),
+      providesTags: ['Record'],
     }),
   }),
 });
 
-export const { useTimeInMutation, useRecordTodayQuery } = recordsApiSlice;
+export const { useTimeInMutation, useRecordTodayQuery, useTimeOutMutation } =
+  recordsApiSlice;
