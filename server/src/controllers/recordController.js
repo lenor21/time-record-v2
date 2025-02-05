@@ -46,7 +46,7 @@ const addTimeIn = asyncHandler(async (req, res) => {
 });
 
 // @desc: time out on a record
-// @route: GET /api/records
+// @route: PUT /api/records/:id
 // @access: Private
 const addTimeOut = asyncHandler(async (req, res) => {
   const record = await Record.findById(req.params.id);

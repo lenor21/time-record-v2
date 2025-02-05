@@ -97,7 +97,7 @@ const Record = () => {
           Swal.fire({
             position: 'center',
             icon: 'error',
-            title: `${err.data.message || err.message}`,
+            title: `${err.data.message}`,
             showConfirmButton: false,
             timer: 2000,
           });
