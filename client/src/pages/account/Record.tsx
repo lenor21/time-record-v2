@@ -7,8 +7,8 @@ import { setRecord } from '../../features/record/recordSlice';
 
 const Record = () => {
   const [date, setDate] = useState(new Date());
-  const [timeIn, setTimeIn] = useState<string | null>(null);
-  const [timeOut, setTimeOut] = useState<string | null>(null);
+  const [recordTimeIn, setRecordTimeIn] = useState<string | null>(null);
+  const [recordTimeOut, setRecordTimeOut] = useState<string | null>(null);
 
   const dispatch = useDispatch();
 
@@ -47,7 +47,7 @@ const Record = () => {
 
         localStorage.setItem('timeIn', localizedTime);
 
-        setTimeIn(localStorage.getItem('timeIn'));
+        setRecordTimeIn(localStorage.getItem('timeIn'));
       }
     });
   };
@@ -71,10 +71,34 @@ const Record = () => {
 
         localStorage.setItem('timeOut', localizedTime);
 
-        setTimeOut(localStorage.getItem('timeOut'));
+        setRecordTimeOut(localStorage.getItem('timeOut'));
       }
     });
   };
+
+  // useEffect(() => {
+  //   if (recordInfo) {
+  //     localStorage.setItem(
+  //       'timeIn',
+  //       new Date(recordInfo.timeIn).toLocaleString('en-US', {
+  //         hour: '2-digit',
+  //         minute: '2-digit',
+  //       })
+  //     );
+
+  //     localStorage.setItem(
+  //       'timeOut',
+  //       new Date(recordInfo.timeOut).toLocaleString('en-US', {
+  //         hour: '2-digit',
+  //         minute: '2-digit',
+  //       })
+  //     );
+  //     setRecordTimeIn(localStorage.getItem('timeIn'));
+  //     setRecordTimeOut(localStorage.getItem('timeOut'));
+
+  //     console.log(recordTimeOut);
+  //   }
+  // }, [recordInfo]);
 
   useEffect(() => {
     if (recordData && recordData.length > 0) {
@@ -98,7 +122,7 @@ const Record = () => {
       <div className='card bg-base-100 w-full md:w-96 shadow-xl'>
         <div className='card-body'>
           <h2 className='card-title'>Hello {userInfo.name}</h2>
-          <p>Company name {recordInfo?.name}</p>
+          <p>Company name</p>
           <div className='stats shadow w-full border border-[#c2c9d3] rounded-md bg-base-200 mt-4'>
             <div className='stat'>
               <div className='stat-title'>{localizedDate}</div>
@@ -110,12 +134,17 @@ const Record = () => {
               <div className='stat'>
                 <div className='stat-title text-center'>Time in:</div>
                 <div className='stat-value text-xl text-center'>
-                  {timeIn ? localStorage.getItem('timeIn') : 'No record'}
+                  {recordInfo.timeIn
+                    ? new Date(recordInfo.timeIn).toLocaleString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : 'No record'}
                 </div>
                 <button
                   onClick={handleTimeIn}
                   className='btn mt-6'
-                  disabled={timeIn !== null || timeOut !== null}>
+                  disabled={recordTimeIn !== null || recordTimeOut !== null}>
                   TIME IN
                 </button>
               </div>
@@ -124,12 +153,12 @@ const Record = () => {
               <div className='stat'>
                 <div className='stat-title text-center'>Time out:</div>
                 <div className='stat-value text-xl text-center'>
-                  {timeOut ? localStorage.getItem('timeOut') : 'No record'}
+                  {recordTimeOut ? recordTimeOut : 'No record'}
                 </div>
                 <button
                   onClick={handleTimeOut}
                   className='btn mt-6'
-                  disabled={timeOut !== null}>
+                  disabled={recordTimeOut !== null}>
                   TIME OUT
                 </button>
               </div>
