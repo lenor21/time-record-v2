@@ -41,9 +41,9 @@ const LogoutButton = () => {
   };
 
   return (
-    <button className='btn btn-error text-white' onClick={logoutHandler}>
+    <div className='md:bg-[#2b3440] md:text-white' onClick={logoutHandler}>
       Logout
-    </button>
+    </div>
   );
 };
 

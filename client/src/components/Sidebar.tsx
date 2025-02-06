@@ -1,5 +1,8 @@
-import { NavLink, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../app/store';
+import LogoutButton from './LogoutButton';
 
 const Sidebar = () => {
   const [signInPage, setSignInPage] = useState(false);
@@ -7,6 +10,8 @@ const Sidebar = () => {
   const [homePage, setHomePage] = useState(false);
 
   const location = useLocation();
+
+  const { userInfo } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     switch (location.pathname) {
@@ -33,7 +38,7 @@ const Sidebar = () => {
       default:
         setSignInPage(false);
         setSignUpPage(false);
-        setHomePage(false);
+        setHomePage(true);
         break;
     }
   }, [location]);
@@ -44,29 +49,38 @@ const Sidebar = () => {
         htmlFor='my-drawer-3'
         aria-label='close sidebar'
         className='drawer-overlay'></label>
-      <ul className='menu bg-base-200 min-h-full w-80 p-4 pt-20'>
+      <ul className='menu bg-base-200 min-h-full w-64 p-4 pt-20'>
         {/* Sidebar content here */}
-        <li>
-          <h2 className='text-2xl font-semibold'>RONEL DE JESUS</h2>
-          <NavLink className='bg-base-200' to='/profile'>
-            Profile
-          </NavLink>
-          <NavLink className='bg-base-200' to='/logout'>
-            Logout
-          </NavLink>
-        </li>
+        {userInfo ? (
+          <li>
+            <h2 className='text-2xl font-semibold'>
+              {userInfo?.name?.trim().split(/\s+/)[0]}
+            </h2>
+            <Link className='bg-base-200' to='/account'>
+              Record
+            </Link>
+            <Link className='bg-base-200' to='/account/profile'>
+              Profile
+            </Link>
+            <LogoutButton />
+          </li>
+        ) : (
+          <>
+            <li className={`${signInPage ? 'block' : 'hidden'}`}>
+              <Link to='/sign-in'>Sign in</Link>
+            </li>
+            <li className={`${signUpPage ? 'block' : 'hidden'}`}>
+              <Link to='/sign-up'>Sign up</Link>
+            </li>
+          </>
+        )}
+
         <div className='divider'></div>
         <li className={`${homePage ? 'block true' : 'hidden false'}`}>
-          <NavLink to='/'>Home</NavLink>
+          <Link to='/'>Home</Link>
         </li>
         <li>
-          <NavLink to='/mocks'>Mock</NavLink>
-        </li>
-        <li className={`${signInPage ? 'block' : 'hidden'}`}>
-          <NavLink to='/sign-in'>Sign in</NavLink>
-        </li>
-        <li className={`${signUpPage ? 'block' : 'hidden'}`}>
-          <NavLink to='/sign-up'>Sign up</NavLink>
+          <Link to='/mocks'>Mock</Link>
         </li>
       </ul>
     </div>

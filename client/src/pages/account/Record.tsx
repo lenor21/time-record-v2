@@ -89,9 +89,6 @@ const Record = () => {
           const durationHour = durationMs / (1000 * 60 * 60);
           const durationData = durationHour.toFixed(2);
 
-          console.log(durationData);
-          // testing branch develop
-
           const res = await timeOut({
             timeOut: date,
             _id: recordInfo._id,

@@ -1,4 +1,4 @@
-import { NavLink, Link, useLocation, useNavigate } from 'react-router';
+import { NavLink, Link, useLocation } from 'react-router';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
