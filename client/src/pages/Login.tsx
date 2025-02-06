@@ -45,7 +45,6 @@ const Login = () => {
 
       navigate('/account');
       actions.resetForm();
-      // console.log(values.email, actions);
 
       // Optional: Simulate loading state (if needed)
       await new Promise((resolve) => setTimeout(resolve, 1000));

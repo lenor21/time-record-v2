@@ -58,7 +58,16 @@ const addTimeOut = asyncHandler(async (req, res) => {
 
   const { timeOut } = req.body;
 
-  const timeOutExist = await Record.findOne({ timeOut });
+  // covert to date only
+  const incomingTimeOutDate = new Date(timeOut).toISOString().split('T')[0];
+
+  const timeOutExist = await Record.findOne({
+    _id: req.params.id,
+    timeOut: {
+      $gte: new Date(incomingTimeOutDate),
+      $lt: new Date(`${incomingTimeOutDate}T23:59:59.999Z`),
+    },
+  });
 
   if (timeOutExist) {
     res.status(400);

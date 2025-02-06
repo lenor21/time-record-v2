@@ -36,8 +36,6 @@ const Mock = () => {
     getUser();
   }, [currentPage, limit]);
 
-  console.log(users);
-
   const data = users.map((item) => (
     <tr key={item._id}>
       <th>{item.id}</th>

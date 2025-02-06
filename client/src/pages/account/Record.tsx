@@ -81,9 +81,20 @@ const Record = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+          const currentDateMs = date.getTime();
+          const timeInRecord = recordInfo.timeIn;
+          const timeInString = new Date(timeInRecord);
+          const timeInMs = timeInString.getTime();
+          const durationMs = currentDateMs - timeInMs;
+          const durationHour = durationMs / (1000 * 60 * 60);
+          const durationData = durationHour.toFixed(2);
+
+          console.log(durationData);
+
           const res = await timeOut({
             timeOut: date,
             _id: recordInfo._id,
+            duration: durationData,
           }).unwrap();
 
           dispatch(setRecord({ ...res }));
