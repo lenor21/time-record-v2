@@ -5,7 +5,14 @@ import Record from '../models/recordModel.js';
 // @route: GET /api/records
 // @access: Private
 const getRecords = asyncHandler(async (req, res) => {
-  const records = await Record.find();
+  let records;
+
+  if (req.user.role === 'admin') {
+    records = await Record.find().sort({ createdAt: -1 });
+  } else {
+    records = await Record.find({ user: req.user._id }).sort({ createdAt: -1 });
+  }
+
   res.status(200).json(records);
 });
 

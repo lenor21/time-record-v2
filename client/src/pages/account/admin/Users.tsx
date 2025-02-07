@@ -24,7 +24,7 @@ const Users = () => {
     <div className='min-h-[80vh] py-20'>
       <h2 className='mb-10'>List of users</h2>
       <ul className='w-full bg-slate-100 py-10 px-5 sm:p-10 rounded-xl grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-        {users}
+        {posts ? users : <p>No users available</p>}
       </ul>
 
       <div className='grid place-items-center mt-20'>
