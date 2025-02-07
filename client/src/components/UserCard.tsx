@@ -1,6 +1,4 @@
 const UserCard = ({ ...item }) => {
-  // practice git revert
-
   return (
     <li>
       <a href='#' className='card bg-base-100 w-full shadow-xl'>
