@@ -59,6 +59,13 @@ const Sidebar = () => {
             <Link className='bg-base-200' to='/account'>
               Record
             </Link>
+            {userInfo.role === 'admin' && (
+              <>
+                <Link className='bg-base-200' to='/account/admin'>
+                  Users
+                </Link>
+              </>
+            )}
             <Link className='bg-base-200' to='/account/profile'>
               Profile
             </Link>

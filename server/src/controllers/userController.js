@@ -8,7 +8,17 @@ import Record from '../models/recordModel.js';
 // @route: GET /api/users
 // @access: Public
 const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find();
+  const { _id, role } = req.user;
+
+  let users;
+
+  if (role !== 'admin') {
+    res.status(400);
+    throw new Error('Only admin role can access users data');
+  } else {
+    users = await User.find({ _id: { $ne: _id } });
+  }
+
   res.status(200).json(users);
 });
 
@@ -16,7 +26,7 @@ const getUsers = asyncHandler(async (req, res) => {
 // @route: POST /api/users
 // @access: Public
 const addUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, role, password } = req.body;
 
   // check if the inputs are empty
   if (!name || !email || !password) {
@@ -37,7 +47,12 @@ const addUser = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // create a new user
-  const user = await User.create({ name, email, password: hashedPassword });
+  const user = await User.create({
+    name,
+    email,
+    role,
+    password: hashedPassword,
+  });
 
   if (user) {
     generateToken(res, user._id);
@@ -46,6 +61,7 @@ const addUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
     });
   } else {
     res.status(400);
@@ -76,6 +92,7 @@ const loginUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
     });
   } else {
     res.status(400);

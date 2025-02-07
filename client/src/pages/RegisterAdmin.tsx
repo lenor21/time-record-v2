@@ -1,33 +1,49 @@
-import GoogleButton from '../components/GoogleButton';
-import { Link, useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
 import { useFormik, FormikHelpers } from 'formik';
-import { formLoginSchema } from '../schemas';
+import { formRegisterSchema } from '../schemas';
+import { Link, useNavigate } from 'react-router';
 import { FaEye, FaEyeSlash } from 'react-icons/fa6';
-import { useState, useEffect } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLoginMutation } from '../features/auth/usersApiSlice';
-import { setCredentials } from '../features/auth/authSlice';
 import { RootState } from '../app/store';
+import { useRegisterMutation } from '../features/auth/usersApiSlice';
 import Swal from 'sweetalert2';
 import Loader from '../components/Loader';
+import { setCredentials } from '../features/auth/authSlice';
 
 interface FormValues {
+  name: string;
   email: string;
   password: string;
+  confirmPassword: string;
 }
 
-const Login = () => {
+type RecaptchaResponse = string | null;
+
+const Register = () => {
+  const [recaptchaVal, setRecaptchaVal] = useState<RecaptchaResponse>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  const [login, { isLoading }] = useLoginMutation();
+  const [register, { isLoading }] = useRegisterMutation();
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate('/account');
+    }
+  }, [navigate, userInfo]);
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const onSubmit = async (
@@ -35,18 +51,20 @@ const Login = () => {
     actions: FormikHelpers<FormValues>
   ) => {
     try {
-      const res = await login({
+      const res = await register({
+        name: values.name,
         email: values.email,
         password: values.password,
+        role: 'admin',
+        confirmPassword: values.confirmPassword,
       }).unwrap();
 
-      // handle successful login
       dispatch(setCredentials({ ...res }));
+      navigate('/account');
       actions.resetForm();
 
-      // Optional: Simulate loading state (if needed)
       await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (err: unknown) {
+    } catch (err) {
       if (isApiError(err)) {
         Swal.fire({
           position: 'center',
@@ -80,31 +98,44 @@ const Login = () => {
 
   const formik = useFormik({
     initialValues: {
+      name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
-    validationSchema: formLoginSchema,
+    validationSchema: formRegisterSchema,
     onSubmit,
   });
-
-  useEffect(() => {
-    if (userInfo) {
-      navigate('/account');
-    }
-  }, [navigate, userInfo]);
 
   if (isLoading) {
     return <Loader />;
   }
 
   return (
-    <div className='grid place-items-center min-h-[80vh]'>
+    <div className='grid place-items-center min-h-[85vh] py-20'>
       <div className='card bg-base-100 max-w-96 shadow-xl'>
         <form
           onSubmit={formik.handleSubmit}
           className='card-body flex flex-col gap-y-4'>
-          <h2 className='card-title'>Sign in</h2>
+          <h2 className='card-title'>Sign up admin</h2>
           <p>Lorem ipsum dolor sit amet consectetur adipisicing.</p>
+          <div className='card-actions'>
+            <input
+              type='text'
+              placeholder='Name'
+              className={`input bg-white input-bordered w-full ${
+                formik.errors.name && formik.touched.name ? 'border-[red]' : ''
+              }`}
+              id='name'
+              name='name'
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.errors.name && formik.touched.name && (
+              <p className='text-[red] text-sm'>{formik.errors.name}</p>
+            )}
+          </div>
           <div className='card-actions'>
             <input
               type='email'
@@ -152,29 +183,68 @@ const Login = () => {
                 />
               )}
             </div>
+
             {formik.errors.password && formik.touched.password && (
               <p className='text-[red] text-sm'>{formik.errors.password}</p>
             )}
           </div>
           <div className='card-actions'>
+            <div className='w-full relative'>
+              <input
+                type={`${!showConfirmPassword ? 'text' : 'password'}`}
+                placeholder='Confirm password'
+                className={`input input-bordered w-full pr-10 ${
+                  formik.errors.confirmPassword &&
+                  formik.touched.confirmPassword
+                    ? 'border-[red]'
+                    : ''
+                }`}
+                id='confirmPassword'
+                name='confirmPassword'
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {showConfirmPassword ? (
+                <FaEye
+                  className='absolute top-[50%] right-4 translate-y-[-50%]'
+                  onClick={handleShowConfirmPassword}
+                />
+              ) : (
+                <FaEyeSlash
+                  className='absolute top-[50%] right-4 translate-y-[-50%]'
+                  onClick={handleShowConfirmPassword}
+                />
+              )}
+            </div>
+
+            {formik.errors.confirmPassword &&
+              formik.touched.confirmPassword && (
+                <p className='text-[red] text-sm'>
+                  {formik.errors.confirmPassword}
+                </p>
+              )}
+          </div>
+          <div className='card-actions'>
+            <div className='grid place-items-center w-full'>
+              <ReCAPTCHA
+                size='compact'
+                sitekey='6Leo_rYqAAAAAGJzBJgU-kbEYPWN98vpxlmy-f8x'
+                onChange={(val: RecaptchaResponse) => setRecaptchaVal(val)}
+              />
+            </div>
+
             <button
-              disabled={formik.isSubmitting}
+              disabled={formik.isSubmitting || !recaptchaVal}
               type='submit'
               className={`btn btn-neutral w-full`}>
-              Sign in
+              Sign up
             </button>
-            <Link className='underline' to='/'>
-              Forgot password?
-            </Link>
-          </div>
-          <div className='divider my-0'>or</div>
-          <div className='card-actions'>
-            <GoogleButton />
           </div>
           <p className='text-center'>
-            Don't have an account?{' '}
-            <Link className='text-blue-500 underline' to='/sign-up'>
-              Sign up
+            Already have an account?{' '}
+            <Link className='text-blue-500 underline' to='/sign-in'>
+              Sign in
             </Link>
           </p>
         </form>
@@ -183,4 +253,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

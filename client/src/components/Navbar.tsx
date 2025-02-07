@@ -86,6 +86,13 @@ const Header = () => {
                     <li>
                       <Link to='/account'>Record</Link>
                     </li>
+
+                    {userInfo.role === 'admin' && (
+                      <li>
+                        <Link to='/account/admin'>Users</Link>
+                      </li>
+                    )}
+
                     <li>
                       <Link to='/account/profile'>Profile</Link>
                     </li>
