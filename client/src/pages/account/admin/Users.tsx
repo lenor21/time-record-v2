@@ -1,30 +1,41 @@
+import { useEffect, useState } from 'react';
+import UserCard from '../../../components/UserCard';
+import { useGetUsersQuery } from '../../../features/auth/usersApiSlice';
+import Loader from '../../../components/Loader';
+
 const Users = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState(0);
+  const [limit, setLimit] = useState(3);
+
+  const { data: posts, isLoading } = useGetUsersQuery({
+    currentPage,
+    limit,
+  });
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  const users = posts.users.map((item: any) => (
+    <UserCard key={item._id} {...item} />
+  ));
+
+  console.log(users);
+
   return (
     <div className='min-h-[80vh] py-20'>
       <h2 className='mb-10'>List of users</h2>
-      <ul className='w-full bg-[#ff0] grid md:grid-cols-3 lg:grid-cols-5 gap-4'>
-        <li>
-          <a href='#' className='card bg-base-100 w-full shadow-xl'>
-            <figure>
-              <img
-                src='https://images.unsplash.com/32/Mc8kW4x9Q3aRR3RkP5Im_IMG_4417.jpg?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-                alt='Shoes'
-              />
-            </figure>
-            <div className='card-body'>
-              <h2 className='card-title'>
-                Shoes!
-                <div className='badge badge-secondary'>NEW</div>
-              </h2>
-              <p>If a dog chews shoes whose shoes does he choose?</p>
-              <div className='card-actions justify-end'>
-                <div className='badge badge-outline'>Fashion</div>
-                <div className='badge badge-outline'>Products</div>
-              </div>
-            </div>
-          </a>
-        </li>
+      <ul className='w-full bg-slate-100 p-10 rounded-xl grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+        {users}
       </ul>
+      <p>{currentPage}</p>
+
+      <button onClick={() => handlePageChange(currentPage + 1)}>Next</button>
     </div>
   );
 };

@@ -10,16 +10,25 @@ import Record from '../models/recordModel.js';
 const getUsers = asyncHandler(async (req, res) => {
   const { _id, role } = req.user;
 
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 12;
+  const skip = (page - 1) * limit;
+
+  const totalUsers = await User.countDocuments({ _id: { $ne: _id } });
+  const totalPages = Math.ceil(totalUsers / limit);
+
   let users;
 
   if (role !== 'admin') {
     res.status(400);
     throw new Error('Only admin role can access users data');
   } else {
-    users = await User.find({ _id: { $ne: _id } });
+    users = await User.find({ _id: { $ne: _id } })
+      .skip(skip)
+      .limit(limit);
   }
 
-  res.status(200).json(users);
+  res.status(200).json({ users, currentPage: page, totalPages, totalUsers });
 });
 
 // @desc: Add a user
