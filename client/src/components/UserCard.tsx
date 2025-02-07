@@ -7,7 +7,15 @@ const UserCard = ({ ...item }) => {
             {item.name}
             <div className='badge badge-secondary'>NEW</div>
           </h2>
-          <p>If a dog chews shoes whose shoes does he choose?</p>
+          <p>{item.email}</p>
+          <p>{item.role}</p>
+          <p>
+            {new Date(item.createdAt).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </p>
         </div>
       </a>
     </li>

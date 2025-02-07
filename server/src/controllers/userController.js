@@ -11,7 +11,7 @@ const getUsers = asyncHandler(async (req, res) => {
   const { _id, role } = req.user;
 
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 12;
+  const limit = parseInt(req.query.limit) || 4;
   const skip = (page - 1) * limit;
 
   const totalUsers = await User.countDocuments({ _id: { $ne: _id } });
@@ -23,7 +23,7 @@ const getUsers = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Only admin role can access users data');
   } else {
-    users = await User.find({ _id: { $ne: _id } })
+    users = await User.find({ _id: { $ne: _id }, role: { $ne: 'admin' } })
       .skip(skip)
       .limit(limit);
   }
