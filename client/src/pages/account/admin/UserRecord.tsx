@@ -8,9 +8,9 @@ const UserRecord = () => {
 
   const { data: userRecords } = useUserRecordsQuery(id);
 
-  useEffect(() => {
-    console.log(userRecords);
-  }, [userRecords]);
+  // useEffect(() => {
+  //   console.log(userRecords);
+  // }, [userRecords]);
 
   return (
     <div>
