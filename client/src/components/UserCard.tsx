@@ -1,7 +1,11 @@
+import { Link } from 'react-router';
+
 const UserCard = ({ ...item }) => {
   return (
     <li>
-      <a href='#' className='card bg-base-100 w-full shadow-xl'>
+      <Link
+        to={`/account/admin/${item._id}`}
+        className='card bg-base-100 w-full shadow-xl'>
         <div className='card-body min-h-40'>
           <h2 className='card-title'>
             {item.name}
@@ -17,7 +21,7 @@ const UserCard = ({ ...item }) => {
             })}
           </p>
         </div>
-      </a>
+      </Link>
     </li>
   );
 };

@@ -28,8 +28,18 @@ export const recordsApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['Record'],
     }),
+    userRecords: builder.query({
+      query: (userId) => ({
+        url: `${RECORDS_URL}/${userId}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
-export const { useTimeInMutation, useRecordTodayQuery, useTimeOutMutation } =
-  recordsApiSlice;
+export const {
+  useTimeInMutation,
+  useRecordTodayQuery,
+  useTimeOutMutation,
+  useUserRecordsQuery,
+} = recordsApiSlice;

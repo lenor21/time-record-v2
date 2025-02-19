@@ -113,4 +113,14 @@ const getRecordToday = asyncHandler(async (req, res) => {
   res.status(200).json(record);
 });
 
-export { getRecords, addTimeIn, addTimeOut, getRecordToday };
+// @desc: Get all records of a user
+// @route: GET /api/records/:id
+// @access: Private
+const getUserRecords = asyncHandler(async (req, res) => {
+  const records = await Record.find({ user: req.params.id }).sort({
+    createdAt: -1,
+  });
+  res.status(200).json(records);
+});
+
+export { getRecords, addTimeIn, addTimeOut, getRecordToday, getUserRecords };

@@ -11,6 +11,7 @@ import Profile from '../pages/account/Profile';
 import Admin from '../pages/account/admin/Admin';
 import Users from '../pages/account/admin/Users';
 import RegisterAdmin from '../pages/RegisterAdmin';
+import UserRecord from '../pages/account/admin/UserRecord';
 
 const router = createBrowserRouter([
   {
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
                   {
                     path: '/account/admin',
                     element: <Users />,
+                  },
+                  {
+                    path: '/account/admin/:id',
+                    element: <UserRecord />,
                   },
                 ],
               },

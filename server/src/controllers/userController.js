@@ -25,7 +25,8 @@ const getUsers = asyncHandler(async (req, res) => {
   } else {
     users = await User.find({ _id: { $ne: _id }, role: { $ne: 'admin' } })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .sort({ createdAt: -1 });
   }
 
   res.status(200).json({ users, currentPage: page, totalPages, totalUsers });
